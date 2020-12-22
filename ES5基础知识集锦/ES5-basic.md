@@ -154,10 +154,9 @@ console.log(typeof func())
 下面分析并解释一下，为什么会是这个结果：  
 首先foo函数中的打印结果为什么会是'function',因为foo是一个具名函数表达式，但是func这个函数名只能在函数体内部才能访问的到，在外部这个函数表达式实际上和匿名函数表达式没有什么不同，并且在函数内部，func是**只读**的，所以对func进行赋值是无效的，这就解释了为什么typeof func得到的是'function'。  
 第二个问题，为什么函数外部的打印会报错，解释第一个问题的时候我们就提到了，func只能在函数内部访问到，所以在函数外部执行它，肯定是会报错的。
- 
- 
 
- 
+
+
 ## this的指向问题（重中之重）
 废话不多说，先看一段代码（也还是一个经典的面试题）  
 ```javascript
@@ -166,7 +165,78 @@ var test = {
   a: 40,
   init: function() {
     console.log(this.a);
+  }
+};
+test.init();
+```
++ 普遍规律this谁调用指向谁
+ 
+分析：根据以上的普遍规律我们可以出执行test.init();此时的a为40。  
+ 
+现在我们将上面的代码做一次扩展  
+```javascript
+this.a = 20;
+var test = {
+  a: 40,
+  init: function() {
+    console.log(this.a);
+  }
+};
+
+var fn = test.init;
+fn();
+```
+ 
+分析一下上面的代码：创建一个变量fn，并为之赋值test.init，并执行fn()。在全局作用域下执行fn()，等价于执行window.fn()，this.a等价于window.a，由此可得出this.a为20。这也印证了this谁调用指向谁的普遍规律。  
+ 
+对代码再一次做扩展  
+```javascript
+this.a = 20;
+var test = {
+  a: 40,
+  init: function() {
+    function go() {
+      console.log(this.a)
+    }
+    go()
+  }
+};
+
+test.init();
+```  
+ 
+上面的代码，打印出来的this.a为20，也就是说this指向window。说明同样验证了上文说到的普遍规律。  
+ 
+对以上代码再次进行变形：  
+```javascript
+this.a = 20;
+var test = {
+  a: 40,
+  init: function() {
+    function go() {
+      console.log(this.a)
+    }
     return go;
   }
-}
+};
+
+var s = test.init();
+s();
 ```
+ 
+上面的代码执行结果this.a仍然是20，也就是说this仍然指向window，还是那句话this的指向是谁调用指向谁。
+ 
+说完了普遍情况，我们还要说一些特殊的情况。。。  
+ 
+ ```javascript
+ function test(a) {
+   this.a = a;
+ }
+ this.prototype.a = 20;
+ this.prototype.init = function() {
+   console.log(this.a)
+ }
+ var s = new test(30);
+ s.init()
+ ```
+ 构造函数返回的对象会覆盖原型链上的值

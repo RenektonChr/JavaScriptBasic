@@ -9,13 +9,19 @@
 
 <body>
   <script>
-    var foo = function func(num) {
-      func = num;
-      console.log(typeof func)
-      return 1;
-    }
-    foo(1)
-    console.log(typeof func())
+    this.a = 20;
+    var test = {
+      a: 40,
+      init: function() {
+        function go() {
+          console.log(this.a)
+        }
+        return go;
+      }
+    };
+
+    var s = test.init();
+    s();
   </script>
 </body>
 
