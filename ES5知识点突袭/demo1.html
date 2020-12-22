@@ -9,16 +9,13 @@
 
 <body>
   <script>
-
-    console.log(a);
-    a();
-    var a = 3;
-    function a() {
-      console.log(10)
+    var foo = function func(num) {
+      func = num;
+      console.log(typeof func)
+      return 1;
     }
-    console.log(a)
-    a = 6
-    a()
+    foo(1)
+    console.log(typeof func())
   </script>
 </body>
 

@@ -131,3 +131,42 @@ a()
 我们现在需要把变形之前的原题在浏览器中跑一下，验证我们对声明提升和刚才的分析。  
  
 毫无疑问我们是对的~~
+ 
+  
+接下来还没完，我们对于这个题进行一个扩展，先看一个扩展题：  
+ 
+```javascript
+var foo = function func(num) {
+  func = num;
+  console.log(typeof func)
+  return 1;
+}
+foo(1)
+console.log(typeof func())
+```
+ 
+对于这段代码，实际上可以提出两个比较明显的问题：  
++ foo函数中打印的结果是什么？
++ foo函数外部的打印结果是什么？
+ 
+答案：foo函数内部打印的结果是'function'，foo函数外部的打印语句会报错 Uncaught ReferenceError: func is not defined  
+ 
+下面分析并解释一下，为什么会是这个结果：  
+首先foo函数中的打印结果为什么会是'function',因为foo是一个具名函数表达式，但是func这个函数名只能在函数体内部才能访问的到，在外部这个函数表达式实际上和匿名函数表达式没有什么不同，并且在函数内部，func是**只读**的，所以对func进行赋值是无效的，这就解释了为什么typeof func得到的是'function'。  
+第二个问题，为什么函数外部的打印会报错，解释第一个问题的时候我们就提到了，func只能在函数内部访问到，所以在函数外部执行它，肯定是会报错的。
+ 
+ 
+
+ 
+## this的指向问题（重中之重）
+废话不多说，先看一段代码（也还是一个经典的面试题）  
+```javascript
+this.a = 20;
+var test = {
+  a: 40,
+  init: function() {
+    console.log(this.a);
+    return go;
+  }
+}
+```
