@@ -259,4 +259,110 @@ s();
  
 形如上面的代码我们就没给构造函数传值，但是this的指向并没有变，仍然指向实例，由于没有给构造函数传值，那么构造函数中实际执行的语句就会变为this.a = undefined;，所有控制台会打印undefined！   
  
-+ 总结：其实说白了this的指向到这里还是谁调用指向谁，关键是在遇到new操作符的时候，this的指向会硬性的绑定在实例上，所以当this遇到new操作符的时候就应该引起我们的重视。可能会有坑！
++ 总结：其实说白了this的指向到这里还是谁调用指向谁，关键是在遇到new操作符的时候，this的指向会硬性的绑定在实例上，所以当this遇到new操作符的时候就应该引起我们的重视。可能会有坑！  
+ 
+接下来我们要来看一个神奇的问题，一个分号引起的血案！废话不多说，我们上代码：  
+ 
+```javascript
+this.a = 20;
+var test = {
+  a: 40,
+  init: function() {
+    console.log(this.a);
+  }
+}
+(function() {
+  var fn = test.init;
+  fn();
+})()
+```
+ 
+相信很多前端人在这里都会采坑，这段代码实际上会报错。。。  
+ 
+我们来还原一下上面这段代码的实际解释结果就会明白为什么报错了：  
+ 
+```javascript
+this.a = 20;
+var test = {
+  a: 40,
+  init: function() {
+    console.log(this.a);
+  }
+}(function() {
+  var fn = test.init;
+  fn();
+})()
+```
+ 
+JS会把最后一个括号之前的所有代码当做函数体，所以显然他不是一个函数，报错也在情理之中（这里作者本人在看到的时候也是心里MMP）。  
+ 
+那么怎么解决这个错误呢？方法很简单在test对象后面加分号。
+  
+```javascript
+this.a = 20;
+var test = {
+  a: 40,
+  init: function() {
+    console.log(this.a);
+  }
+};
+(function() {
+  var fn = test.init;
+  fn();
+})()
+```  
+ 
+那么问题来了，这段代码this.a会是多少？？  
+ 
+答案很明显：this.a为20  
+ 
+接下来，我们看一下箭头函数对于this的影响：  
+ 
+```javascript
+this.a = 20;
+var test = {
+  a: 40,
+  init: () => {
+    console.log(this.a)
+  }
+}
+test.init()
+```
+ 
+这道题如果按照ES5的解析方式，那么毫无疑问this的指向是谁调用指向谁。所以this.a为40。但是，这道题的答案this.a却为20。  
+ 
+分析：我们对比一下代码就会知道，上面的代码和之前的代码有一个明显的区别，就是init函数是一个ES6的箭头函数，箭头函数和ES5的函数一个最大的不同就是箭头函数会绑定父级作用域！所以当执行test.init()的时候init函数内的this指向的是全局作用域也就是window，那么init函数内的this.a自然就为20。  
+ 
+思考一个问题，如果用ES5的写法怎么实现ES6箭头函数的效果呢？  
+答案是显然的：使用bind改变原有的this指向，使其指向父级  
+ 
+```javascript
+this.a = 20;
+var test = {
+  a: 40,
+  init: function() {
+    console.log(this.a)
+  }
+}
+var s = test.init.bind(this)
+s()
+```  
+ 
+现在我们知道了bind的作用，可以看一个面试题测试一下：  
+ 
+```javascript
+var s = {
+  a: function() {
+    console.log(this);
+  },
+  b() {
+    console.log(this);
+  },
+  c: () => {
+    console.log(this);
+  }
+}
+s.a();
+s.b();
+s.c();
+```
