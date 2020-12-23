@@ -9,16 +9,27 @@
 
 <body>
   <script>
- function test(a) {
-   this.a = a;
- }
- test.prototype.a = 20;
- test.prototype.init = function() {
-   console.log(this.a)
- }
- var s = new test();
- console.log(s)
- s.init()
+this.test = 11;
+var s = {
+  a: function() {
+    console.log(this.test + 1);
+  },
+  // b() {
+  //   console.log(this.test);
+  // },
+  c: () => {
+    console.log(this.test);
+  }
+};
+
+var f = s.a.bind(this);
+new f();
+
+// var p = s.b.bind(this);
+// new p();
+
+var q = s.c.bind(this);
+new q();
   </script>
 </body>
 

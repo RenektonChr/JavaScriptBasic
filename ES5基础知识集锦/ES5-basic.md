@@ -365,4 +365,53 @@ var s = {
 s.a();
 s.b();
 s.c();
+```  
+ 
+稍微的解释一下这段代码：函数a是标准ES5的写法，执行s.a()，this指向s这是毫无疑问的，函数b的写法可以暂时看做ES5写法的简便写法（注意这里只是暂时可以这么认为，不同点我们以后会说），执行s.b()，this指向s，这和ES5的标准写法相同，唯一不同的是函数c，函数c是箭头函数，箭头函数的this会被硬性绑定到父级作用域上，执行s.c，this指向window。  
+ 
+弄清楚了这一点我们在对于上面的代码进行扩展：  
+ 
+```javascript
+this.test = 11;
+var s = {
+  a: function() {
+    console.log(this.test + 1);
+  },
+  b() {
+    console.log(this.test);
+  },
+  c: () => {
+    console.log(this.test);
+  }
+};
+
+var f = s.a.bind(this);
+new f();
+
+var p = s.b.bind(this);
+new p();
+
+var q = s.c.bind(this);
+new q();
 ```
+ 
+大家猜一下，上面代码的执行结果是什么？  
+ 
+答案揭晓：执行new f();，控制台会打印 NaN。执行new p();控制台会报错，Uncaught TypeError: p is not a constructor。  
+ 
+分析：  
++ 首先看函数a和函数b的不同，一个是ES5的写法，一个是简便写法（注意这里我没有说是‘ES5的简便写法’）。接下来都给函数绑定了this，然后都对于函数f和函数p使用了new操作符。接下来我们先分析函数a，注意这里给函数a绑定了this，但是又new了函数a，那么函数a中的this指向会发生变化，this的最终指向的是实例（这一点要切记）！所以在实例上是没有test属性的，所以函数a中的this.test为undefined，undefined + 1为NaN。
++ 我们在说一下new p()为什么报错，一句话解释清楚就是ES6的这种函数的简便写法不支持new操作符，所以会报错Uncaught TypeError: p is not a constructor。  
+ 
+说到这里，有个疑问还没有解决：我们明明在new f()之前给s.a绑定了this，为什么a函数中的this没有指向window呢？  
+ 
+一句话解释清楚这个问题：因为有new操作符的存在，new操作符会把this强行指向实例，有bind也没用，new操作符的作用要比bind强！  
+ 
+到现在为止，上面的那个面试题我们就完全解释完了。下面我们来总结一下：  
++ ES6函数的写法（包括箭头函数和简便写法两种）都不支持new操作符。
++ new操作符的作用要强于bind，new操作符会硬性的改变this的指向，使其指向实例，有没有bind都一样。
++ 至此，可以改变this指向的方法有三种：
+  + 箭头函数
+  + bind函数
+  + new操作符
++ ES6函数的简便写法不仅仅是简单，要注意Uncaught TypeError: xxx is not a constructor
