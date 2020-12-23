@@ -9,19 +9,16 @@
 
 <body>
   <script>
-    this.a = 20;
-    var test = {
-      a: 40,
-      init: function() {
-        function go() {
-          console.log(this.a)
-        }
-        return go;
-      }
-    };
-
-    var s = test.init();
-    s();
+ function test(a) {
+   this.a = a;
+ }
+ test.prototype.a = 20;
+ test.prototype.init = function() {
+   console.log(this.a)
+ }
+ var s = new test();
+ console.log(s)
+ s.init()
   </script>
 </body>
 

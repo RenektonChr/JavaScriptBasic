@@ -232,11 +232,31 @@ s();
  function test(a) {
    this.a = a;
  }
- this.prototype.a = 20;
- this.prototype.init = function() {
+ test.prototype.a = 20;
+ test.prototype.init = function() {
    console.log(this.a)
  }
  var s = new test(30);
  s.init()
  ```
- 构造函数返回的对象会覆盖原型链上的值
+  
+先揭晓答案：控制台会打印30  
+ 
+分析：new test(30)得到一个实例化对象，我们都知道一旦给构造函数加上new操作符，函数内部的this就指向构造函数返回的实例，又构造函数返回的实例会覆盖原型链上的值，所以打印this.a会得到30。那么我们思考一个问题，如果我们不给构造函数传值，this.a会是多少？  
+ 
+```javascript
+ function test(a) {
+   this.a = a;
+ }
+ test.prototype.a = 20;
+ test.prototype.init = function() {
+   console.log(this.a)
+ }
+ var s = new test();
+ console.log(s)
+ s.init()
+```  
+ 
+形如上面的代码我们就没给构造函数传值，但是this的指向并没有变，仍然指向实例，由于没有给构造函数传值，那么构造函数中实际执行的语句就会变为this.a = undefined;，所有控制台会打印undefined！   
+ 
++ 总结：其实说白了this的指向到这里还是谁调用指向谁，关键是在遇到new操作符的时候，this的指向会硬性的绑定在实例上，所以当this遇到new操作符的时候就应该引起我们的重视。可能会有坑！
