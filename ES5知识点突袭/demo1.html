@@ -9,27 +9,9 @@
 
 <body>
   <script>
-this.test = 11;
-var s = {
-  a: function() {
-    console.log(this.test + 1);
-  },
-  // b() {
-  //   console.log(this.test);
-  // },
-  c: () => {
-    console.log(this.test);
-  }
-};
-
-var f = s.a.bind(this);
-new f();
-
-// var p = s.b.bind(this);
-// new p();
-
-var q = s.c.bind(this);
-new q();
+    function s() {}
+    var q = new s();
+    console.log(q.a)
   </script>
 </body>
 

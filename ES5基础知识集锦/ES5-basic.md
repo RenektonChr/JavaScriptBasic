@@ -414,4 +414,37 @@ new q();
   + 箭头函数
   + bind函数
   + new操作符
-+ ES6函数的简便写法不仅仅是简单，要注意Uncaught TypeError: xxx is not a constructor
++ ES6函数的简便写法不仅仅是简单，要注意Uncaught TypeError: xxx is not a constructor  
+ 
+现在我们再来看一个扩展题：  
+ 
+```javascript
+function C1(name) {
+  if (name) {
+    this.name = name;
+  }
+}
+
+function C2(name) {
+  this.name = name;
+}
+
+function C3(name) {
+  this.name = name || 'Naruto';
+}
+
+C1.prototype.name = "renekton";
+C2.prototype.name = "cui";
+C3.prototype.name = "haoran";
+console.log((new C1().name) + (new C2().name) + (new C3().name))
+```
+ 
+答案揭晓：控制台会打印 renektonundefinedNaruto  
+ 
+分析：  
++ new C1().name：我们先看函数C1，如果name为真值，则执行this.name=name; 由于new C1()并没有传参，这就造成了new C1()之后，得到的实例上并没有name属性，然后JS的解释规则就会去构造函数的原型上去找name属性，C1的原型上name属性为“renekton”。
++ new C2()：C2与C1的不同之处在于没有参数为真的判断，不管参数有没有都会给this.name赋值，没有传参数的情况下name为undefined，所以new C2()返回的实例上是有name属性的，只不过name属性值为undefined。
++ new C3()：C3函数的不同在于，如果不传参数name，会有一个默认值“Naruto”赋值给this.name，所以new C3()得到的实例上是有name属性的并且name属性值为“Naruto”。
++ 综上所述：控制台会打印 renektonundefinedNaruto
+ 
+ 
