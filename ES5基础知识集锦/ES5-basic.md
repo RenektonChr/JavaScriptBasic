@@ -659,9 +659,147 @@ function func() {
 + Array.from()
 + [...new Set('abc')]
  
+任务：  
++ 手写bind
++ 手写深拷贝（老生常谈）
+ 
  
   
  
 ## JS的继承（面试必问）
  
+
+废话不多收先上一波ES5的JS继承代码：
+ 
+```javascript
+function Car(color) {
+  this.color = color;
+}
+Car.prototype.show = function() {
+  console.log(this.color);
+}
+
+function BMW(color) {
+  Car.call(this, color)
+}
+var __prototype = Object.create(Car.prototype)
+__prototype.constructor = BMW
+BMW.prototype = __prototype;
+BMW.prototype.test = function () {}
+const bmw = new BMW('red');
+console.log(bmw)
+
+class Car {
+  constructor(color) {
+    this.color = color
+  }
+  show() {
+    console.log(this.color);
+  }
+}
+```
+ 
+下面上ES6的继承：  
+ 
+```javascript
+class Car {
+  constructor(color) {
+    this.color = color
+  }
+  show() {
+    console.log(this.color);
+  }
+}
+
+class BMW extends Car{
+  constructor(color) {
+    super(color)
+    super.name = 'renekton'
+  }
+}
+const bmw = new BMW('yellow');
+const car = new Car('red');
+bmw.show()
+console.log(car.xx)
+console.log(bmw.xx)
+```
+ 
+答案揭晓：car.xx为undefined，bmw.xx为'renekton'  
+分析：  
++ 当super不当作函数调用的时候，他就指向实例（说实话这实在是太恶心了）  
+ 
+JS继承这一部分就先到这里，后续笔者会补上。。。  
+ 
+## 杂项（主要是一些有意思的面试题）
+ 
+废话不多说，上货~  
+ 
+先看第一道面试题：  
+ 
+```javascript
+function fn() {
+  console.log(this.length);
+}
+var renekton = {
+  length: 5,
+  method: function(fn) {
+    fn();
+  }
+}
+renekton.method(fn, 1);
+```
+ 
+分析：  
++ 我们一拿到这个题，我们现在就应该立即反应过来，要先确定this的指向。  
++ fn()的执行没有任何对象调用fn，并且也不存在bind和new的作用。我们可以确定this在fn执行的时候是指向window的。  
++ 所以现在这个题就成了window.length的值为多少？
++ 我们发现全局作用域下没有定义length。。。
+ 
+说到这里我们要扩展一个新的知识，那就是window.length实际上是页面中ifream的个数。。。  
+ 
+惊不惊喜？刺不刺激？  
+
+所以这道题并没有一个定值，要看执行的页面中有几个ifream。  
+ 
+现在我们对于上面这道面试题进行一次变形:  
+ 
+```javascript
+function fn() {
+  console.log(this.length);
+}
+var renekton = {
+  length: 5,
+  method: function(fn) {
+    arguments[0]()
+  }
+}
+renekton.method(fn, 1);
+```  
+ 
+分析:  
++ 老套路，确定this指向谁，这里this指向了arguments
++ arguments.length为2
+ 
+激动人心的时刻到了，我们现在上最后一个面试题：  
+ 
+```javascript
+function fun() {}
+fun.prototype.a = 11;
+console.log(fun.a)
+```  
+ 
+答案揭晓：fun.a为undefined。
+ 
+分析：当有new操作符的时候，才会查找原型链，否则就在自身找，所以在自身找不到a，自然的fun.a 为undefined。  
+ 
+我们贴出代码进行对比：  
+ 
+```javascript
+function fun() {}
+fun.prototype.a = 11;
+var s = new fun();
+console.log(s.a);
+```
+ 
+此时s.a才会是11。  
 

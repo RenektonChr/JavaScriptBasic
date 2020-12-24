@@ -9,42 +9,16 @@
 
 <body>
   <script>
-    /**
-     * 作业：
-     * 1. 手写bind
-     * 2. 深拷贝
-    */
-    function Car(color) {
-      this.color = color;
+    function fn() {
+      console.log(this.length);
     }
-    Car.prototype.show = function() {
-      console.log(this.color);
-    }
-
-    function BMW(color) {
-      Car.call(this, color)
-    }
-    var __prototype = Object.create(Car.prototype)
-    __prototype.constructor = BMW
-    BMW.prototype = __prototype;
-    BMW.prototype.test = function () {}
-    const bmw = new BMW('red');
-    console.log(bmw)
-
-    class Car {
-      constructor(color) {
-        this.color = color
-      }
-      show() {
-        console.log(this.color);
+    var renekton = {
+      length: 5,
+      method: function(fn) {
+        arguments[0]()
       }
     }
-
-    class BMW extends Car{
-      constructor(color) {
-        super(color)
-      }
-    }
+    renekton.method(fn, 1, 2);
   </script>
 </body>
 
