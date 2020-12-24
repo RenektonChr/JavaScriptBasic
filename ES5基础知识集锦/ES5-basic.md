@@ -658,4 +658,10 @@ function func() {
 解决方法：  
 + Array.from()
 + [...new Set('abc')]
+ 
+ 
+  
+ 
+## JS的继承（面试必问）
+ 
 

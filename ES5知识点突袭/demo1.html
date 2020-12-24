@@ -9,13 +9,42 @@
 
 <body>
   <script>
-    if(false) {
-      function foo() {
-        console.log(111)
+    /**
+     * 作业：
+     * 1. 手写bind
+     * 2. 深拷贝
+    */
+    function Car(color) {
+      this.color = color;
+    }
+    Car.prototype.show = function() {
+      console.log(this.color);
+    }
+
+    function BMW(color) {
+      Car.call(this, color)
+    }
+    var __prototype = Object.create(Car.prototype)
+    __prototype.constructor = BMW
+    BMW.prototype = __prototype;
+    BMW.prototype.test = function () {}
+    const bmw = new BMW('red');
+    console.log(bmw)
+
+    class Car {
+      constructor(color) {
+        this.color = color
+      }
+      show() {
+        console.log(this.color);
       }
     }
-    console.log(typeof foo)
-    foo()
+
+    class BMW extends Car{
+      constructor(color) {
+        super(color)
+      }
+    }
   </script>
 </body>
 
