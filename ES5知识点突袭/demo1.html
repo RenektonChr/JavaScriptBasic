@@ -9,9 +9,13 @@
 
 <body>
   <script>
-    function s() {}
-    var q = new s();
-    console.log(q.a)
+    if(false) {
+      function foo() {
+        console.log(111)
+      }
+    }
+    console.log(typeof foo)
+    foo()
   </script>
 </body>
 

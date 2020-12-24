@@ -447,4 +447,215 @@ console.log((new C1().name) + (new C2().name) + (new C3().name))
 + new C3()：C3函数的不同在于，如果不传参数name，会有一个默认值“Naruto”赋值给this.name，所以new C3()得到的实例上是有name属性的并且name属性值为“Naruto”。
 + 综上所述：控制台会打印 renektonundefinedNaruto
  
+再来看一个面试题：  
+```javascript
+var a = 20;
+{
+  a = 50;
+  let a = 40;
+}
+```
  
+答案揭晓：上面的代码会报错Uncaught ReferenceError: Cannot access 'a' before initialization  
+  
+分析：  
++ 这是由于暂时性死区的原因报错，在ES6中一个花括号就是一个代码块，也就是块级作用域，在块级作用域中用let声明一个变量a，那么let操作符就会劫持整个代码块，在a声明之前如果使用a，则会报错，这时候虽然代码块之外已经var a了也是不行的。  
++ 关于暂时性死区，可以看一下阮一峰的[ES6入门](https://es6.ruanyifeng.com/#docs/function)  
+ 
+来看一道经典的面试题：  
+```html
+<ul>
+  <li>1</li>
+  <li>2</li>
+  <li>3</li>
+  <li>4</li>
+  <li>5</li>
+  <li>6</li>
+</ul>
+
+<script>
+// 如何将这段代码改写，点击每一个li元素时，输出li元素中的数字？
+var list_li = document.getElementsByTagName("li");
+for(var i = 0; i < list_li.length; i++) {
+  list_li[i].onclick = function() {
+    console.log(i)
+  }
+}
+</script>
+```  
+ 
+分析：  
++ 这个面试题相当经典了，他的问题出在了当你点击的时候，脚本中的代码已经执行完了，i已经变成了6，所以不论你点击哪个li，打印出来的都是6。
++ 出现这种问题的原因就是JS没有块级作用域，所以i是个全局变量，有且只有一个i，最后递增到了6，所以程序只能读到i为6。
++ 解决这个问题的一个思路就是，给JS添加上局部作用域，保存每一次循环i的值！
++ 很自然的我们能想到两个办法闭包和es6的let声明。
+ 
+答案已经出来了，其实这并不是全部的解题方法，可以想想还有没有别的？  
+ 
+答案是肯定的，还有一种方法就是利用this
+ 
+下面我们就用这三种方法分别实现：  
+ 
+ ```html
+ <!-- JS 闭包 -->
+ <ul>
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+    <li>4</li>
+    <li>5</li>
+    <li>6</li>
+  </ul>
+  <script>
+    var list_li = document.getElementsByTagName("li");
+    for(var i = 0; i < list_li.length; i++) {
+      list_li[i].onclick = (function(i) {
+        return function () {
+          console.log(i + 1)
+        }
+      })(i)
+    }
+  </script>
+ ```  
+  
+```html
+<!-- JS this -->
+<ul>
+  <li>1</li>
+  <li>2</li>
+  <li>3</li>
+  <li>4</li>
+  <li>5</li>
+  <li>6</li>
+</ul>
+
+<script>
+var list_li = document.getElementsByTagName("li");
+for(var i = 0; i < list_li.length; i++) {
+  list_li[i].onclick = function() {
+    console.log(this.innerText)
+  }
+}
+</script>
+```  
+ 
+```html
+<!-- JS let -->
+<ul>
+  <li>1</li>
+  <li>2</li>
+  <li>3</li>
+  <li>4</li>
+  <li>5</li>
+  <li>6</li>
+</ul>
+
+<script>
+var list_li = document.getElementsByTagName("li");
+for(let i = 0; i < list_li.length; i++) {
+  list_li[i].onclick = function() {
+    console.log(i + 1)
+  }
+}
+</script>
+```  
+ 
+上面这道面试题实际上是老生常谈，放在这里就是要再次说明一下this的指向问题。还是那句话this谁调用指向谁。this的这种作用域引用有的时候能够化腐朽为神奇。  
+ 
+再来看一个面试题：  
+ 
+```javascript
+function test(m) {
+  m = {
+    v: 5
+  }
+}
+var m = {
+  k: 30
+};
+
+test(m)
+console.log(m.v)
+```  
+ 
+答案揭晓：m.v是undefined。  
+
+分析：  
++ 首先我们先明确一个问题，函数的传参是按值传递，并不是按引用传递！
++ 需要澄清的第二个问题传进去的是栈内存中的值！
++ 所以函数外面的m和函数的参数m，并没有任何关系，只是指向了同一个对象，但是在函数内部m重新赋值了m = { v: 5 }，所以外部的m.v是肯定访问不到的。
+ 
+现在我们对于上面的面试题做一下扩展：  
+ 
+```javascript
+function test(m) {
+  m.v = 5
+}
+var m = {
+  k: 30
+};
+
+test(m)
+console.log(m.v)
+```  
+ 
+分析：
++ 与上一题不同的是，函数内部m并没有重新赋值，只是增加了一个属性，m中存储的地址还是和外部的m指向同一个地址。
++ 所以外部的m.v为5。
++ 但是我们要清楚一个概念，函数外部的m和函数参数的m并没有关系！！他们只是都指向同一个堆地址，也就是指向同一个对象。
++ 参数m和外部的m，变量名一不一样都不影响最终的结果，还是那句话函数的参数是按值传递。  
+ 
+下面我们来看一个非常牛逼的面试题，可以说这道面试题可以帮你干翻面试官：  
+
+```javascript
+function func() {
+  console.log(1);
+}
+(function () {
+  if(false) {
+    function func() {
+      console.log(2);
+    }
+  }
+  func();
+})();
+```
+ 
+揭晓答案：这段代码在不同的浏览器中的执行结果不一样！有三种情况:
++ 1
++ 2
++ 报错
+ 
+分析：  
++ IE6、IE7，if中的func会提升到函数作用域上，打印为2
++ FireFox的少数版本浏览器认为函数提升不合理，这题打印为1
++ 现代浏览器会报错Uncaught TypeError: func is not a function
+ 
+这里写一下现代浏览器是怎么解释这段代码的：  
+ 
+```javascript
+function func() {
+  console.log(1);
+}
+(function () {
+  var func;
+  if(false) {
+    function func() {
+      console.log(2);
+    }
+  }
+  func();
+})();
+```  
+ 
+现代浏览器居然是这么解释的，函数声明提升值提升了一个变量，这时候func是undefined，所以会报错Uncaught TypeError: func is not a function。  
+ 
+还有一个和浏览器相关的是[, ,].length，这是因为浏览器对于逗号的解析不一样。  
+ 
+再来看一个面试题：
+ 
+把'abc'，转换成数组，不能使用split。  
+解决方法：  
++ Array.from()
++ [...new Set('abc')]
+
